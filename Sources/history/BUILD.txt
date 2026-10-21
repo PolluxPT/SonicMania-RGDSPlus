@@ -1,0 +1,103 @@
+CURRENT RELEASE: 1.0 RC1. Read BUILD-RC1.txt first.
+Historical build notes follow.
+
+Sonic Mania RGDS+ 0.2.1 — source and build notes
+
+Original game / engine authors and decompilation contributors retain their rights.
+This is a noncommercial, unofficial platform adaptation. See included licenses.
+Game assets (including Data.rsdk) are not distributed.
+
+Source snapshot: sonicmania-rgds-source.tar.xz, including recursive dependencies.
+RSDKv5 platform file: dependencies/RSDKv5/platforms/RGDS.cmake.
+New hardware integration: dependencies/RSDKv5/rgds-hardware.cpp.
+Other modifications are included in the corresponding original source files.
+
+Build tools: Ubuntu noble GCC13 ARM64 cross compiler, CMake 3.28.3.
+PORT_SDK: extracted ARM64 development libraries and GCC cross sysroot.
+SDL_HEADERS: SDL2 include directory (SDL2 headers are bundled in the archive).
+The runtime uses the console's SDL2 (Stock previously reported SDL 2.32.10),
+Wayland and ALSA; no replacement SDL or GPU drivers are shipped.
+SDK linker SDL: Ubuntu libsdl2-2.0-0 2.30.0+dfsg-1ubuntu3.1 ARM64.
+libogg-dev 1.3.5-3build1 ARM64 supplies static libogg.
+libtheoradec 1.1.1 is compiled from the included Xiph upstream tarball,
+using only decoder sources, no Cairo, assembly or encoder dependencies.
+The build helper corrects the old decoder transposed qi/qti indices in
+lib/decode.c before compiling; the original Xiph archive is preserved.
+GCC C++ and exception runtimes are reused from the user's existing ScummVM port.
+
+Configuration (run at source root, adjust environment paths):
+cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=rgds-toolchain.cmake \
+ -DPLATFORM=RGDS -DRETRO_REVISION=2 -DRETRO_MOD_LOADER=OFF \
+ -DGAME_STATIC=ON -DGAME_INCLUDE_EDITOR=OFF -DRETRO_DISABLE_PLUS=ON \
+ -DCMAKE_BUILD_TYPE=Release
+cmake --build build -j4
+
+The supplied toolchain expects the GCC executables beneath PORT_SDK/usr/bin
+and the cross sysroot/development packages beneath PORT_SDK/usr.
+Put an ARM64 libtheoradec.a built with the included build-theora.py at
+PORT_SDK/usr/lib/aarch64-linux-gnu/libtheoradec.a before linking.
+Output: build/dependencies/RSDKv5/RSDKv5; rename to SonicMania and strip.
+CPU flags: -mcpu=cortex-a55 -fno-strict-aliasing; Release uses -O3.
+
+DLC is disabled by default, as required by the engine source license.
+RGDS_MANIA_PLUS=1 is an explicit opt-in, used only by the PLUS launcher.
+Both the DummyCore constructor and StageLoad read this opt-in. Mods are disabled.
+
+Hardware changes:
+- SDL display 0 selected explicitly, configurable via RGDS_DISPLAY.
+- SDL renderer selection uses automatic acceleration, with software fallback.
+- Separate compatibility launcher forces software output.
+- SELECT+START held 800 ms quits through the normal engine shutdown.
+- Audio request initialized fully, 2048 sample frames, native float stereo.
+- Stock volume node: /sys/class/anbernic_misc/openbor_volume (levels 0..10).
+- Linux input monitoring is nonexclusive, read-only, and limited to the known
+  ANBERNIC controller / adc-keys devices; only volume events are acted on.
+- Gain = 0.35*(level/10)^2, atomic handoff to the audio callback. No file I/O
+  in the audio callback. Gain is initialized before audio playback begins.
+- Firmware node is read periodically; key changes are persisted there.
+- FPS cap yields for 1 ms when more than 2 ms remain; nominal rate is 60 Hz.
+- No firmware replacement, CPU governor, compositor termination or overclock.
+
+Validation:
+- RSDKv5 directory bounds and GameConfig entry checked in supplied datapack.
+- Host SDL software presentation: title, virtual-controller menu navigation,
+  Mania opening sequence reached using supplied data.
+- ARM64 executable run under QEMU with a separate dummy-only SDL test build:
+  Green Hill Act 1 rendered with Sonic, Tails, HUD and music file loaded.
+- Normal shutdown from a synthetic SDL_QUIT event returned zero.
+- Volume unit test: gain at levels 0,1,2,5,10; simulated volume up/down events;
+  saved firmware value; mute and ceiling. See qa_volume.cpp.
+- Shell launchers checked with bash -n; final ELF dependencies checked.
+- Console SDL/Wayland output, ALSA sound, physical controls, screen mapping and
+  frame rate still require physical testing. QEMU is not a performance measure.
+
+The dummy-only SDL test library and captures are not distributed as runtime
+libraries; the console must always use its own SDL. qa_capture.c is supplied
+only as a developer test harness and must not be preloaded in normal use.
+
+Version 0.2 changes / validation:
+- First-run raw-axis calibration detects the left stick's X/Y indices and
+  signs. Original button and D-pad bindings are retained. Existing mapping is
+  backed up; the new mapping is installed with rename only after completion.
+- Updates no longer distribute gamecontrollerdb.txt, preserving calibration.
+- Normal/PLUS launchers request VSync; timer cap bypasses only if SDL reports
+  SDL_RENDERER_PRESENTVSYNC. The old timer mode remains selectable.
+- Ten-second frame-presentation telemetry includes scene-loading intervals.
+- Guided calibration candidate/dead-zone/inversion and backup tests passed.
+- Full calibration flow tested with synthetic raw axes X=3 negative, Y=0
+  positive, using dummy SDL video. Physical sticks require user validation.
+- Plus opt-in tested absent/off/on. Curve and volume-event tests still pass.
+- ARM64 compilation and ELF imports checked. The user confirmed 0.1 works
+  on Stock with opengles2; no new physical-console results exist for 0.2.
+- No game data available in this build session; full gameplay is not retested.
+
+Version 0.2.1 packaging-only update:
+- User-confirmed Stock controller GUID 1900b655010000000100000000010000.
+- Left stick leftx:a0,lefty:a1; no inversion; original D-pad/buttons unchanged.
+- Automatic calibration removed. Known defaults are seeded for new installs.
+- Existing mappings with leftx remain untouched; old mappings without leftx
+  are backed up and migrated to the confirmed Stock mapping.
+- Manual calibration entry remains available. Engine and audio binaries are
+  byte-identical to 0.2. Source archive remains that engine's 0.2 source.
+- Physical test logs distinguish Chemical Plant 1 (~59-60 FPS in steady
+  periods) from Special Stage 1 (~46-51 FPS in repeated periods).

@@ -1,0 +1,7 @@
+{
+  "sonic-mania": "9dc699428420d752af9767bdb13f585ee0881bc0",
+  "sonic-mania/dependencies/RSDKv5": "bd5939658fa9987bd2d4384799cacd57aa432eec",
+  "sonic-mania/dependencies/RSDKv5/dependencies/all/tinyxml2": "e45d9d16d430a3f5d3eee9fe40d5e194e1e5e63a",
+  "sonic-mania/dependencies/RSDKv5/dependencies/all/stb_vorbis": "af1a5bc352164740c1cc1354942b1c6b72eacb8a",
+  "sdl2-source": "8acf7cfc0f88717e5c036f60f0314bfcafe39189"
+}

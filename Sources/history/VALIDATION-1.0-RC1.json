@@ -1,0 +1,46 @@
+{
+  "version": "1.0 RC1",
+  "platform": "RGDS+ Stock OS / Linux ARM64",
+  "changes": [
+    "stable merge sort for large 3D face lists, identical tie order",
+    "hoisted/cached raster inputs with explicit coordinate wrap",
+    "lower backlight off after first active frames, exact restoration and independent watcher",
+    "same 44100 Hz stereo/2048-frame buffer and quadratic stock gain",
+    "audio callback timing/headroom diagnostics and peak/nonfinite guard",
+    "graceful signal shutdown",
+    "two top-level game launchers"
+  ],
+  "validation": {
+    "stable_face_order": "randomized sizes 0..16384, equal depths and INT_MIN/INT_MAX; ASan/UBSan passed",
+    "roto_rows": "20000 randomized rows; complete output/guard pixels identical; ASan/UBSan passed",
+    "visual": "nine captured frames identical to 0.2 engine across UFO1, CPZ and Menu",
+    "volume": "all stock levels preserve gain; mute, max, volume up/down and saved level passed",
+    "audio": "finite PCM bit-identical for every stock gain within headroom; invalid/overrange handling passed",
+    "screen": "fake sysfs verified exact restoration on normal exit, nonzero exit, TERM and forced child death; no upper node writes",
+    "progress": "new game created 65536-byte SaveData.bin; reopen/menu test preserved bytes",
+    "build": "ARM64 Release build passed; only prior runtime libraries required"
+  },
+  "limitations": [
+    "Host profile is not a handheld FPS measurement",
+    "ALSA sound, backlight behavior and special-stage 60 FPS require physical-console confirmation",
+    "Late callback counters indicate scheduling gaps; not exact ALSA xrun counts"
+  ],
+  "local_audio_observation": {
+    "driver": "dummy",
+    "rate": 44100,
+    "channels": 2,
+    "format": "F32",
+    "buffer_frames": 2048,
+    "callbacks": 254,
+    "late_intervals": 0,
+    "over_budget": 0,
+    "max_mix_us": 389,
+    "clipped_samples": 0,
+    "invalid_samples": 0
+  },
+  "baseline_console_evidence": {
+    "CPZ1": "about 59-60 FPS in stable intervals",
+    "UFO1": "about 46-51 FPS in repeated intervals",
+    "new_console_result": null
+  }
+}

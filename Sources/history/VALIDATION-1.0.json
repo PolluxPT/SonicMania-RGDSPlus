@@ -1,0 +1,37 @@
+{
+  "release": "1.0",
+  "retained_gameplay_engine": "RC2; only version label changed",
+  "hardware_RC2": {
+    "ufo_stable_report_fps": [
+      59.93,
+      60.07,
+      59.97,
+      60.01,
+      59.98,
+      60.04,
+      60.01
+    ],
+    "ufo_intervals_over25ms": 11,
+    "ufo_max_interval_ms": 27.09,
+    "audio_reported_late_overbudget_clipped_invalid": 0,
+    "brightness_restored": 70,
+    "exit_code": 0
+  },
+  "final_volume_restore_local_tests": [
+    "normal level0",
+    "normal level3",
+    "normal level10",
+    "error exit7",
+    "launcher SIGTERM",
+    "guardian after child SIGKILL",
+    "guardian with no screen snapshot",
+    "invalid snapshots rejected"
+  ],
+  "volume_physical_test": null,
+  "arm64_release_build": "passed",
+  "limitations": [
+    "near60 FPS verified only in supplied gameplay run",
+    "occasional long frames remain",
+    "volume restoration validated locally with simulated sysfs; not yet on console"
+  ]
+}

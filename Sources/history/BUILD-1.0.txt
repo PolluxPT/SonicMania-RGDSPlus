@@ -1,0 +1,23 @@
+Sonic Mania RGDS+ 1.0
+Build flags/toolchain: BUILD.txt; renderer/audio optimizations: BUILD-RC1.txt;
+deadline clock/presentation: BUILD-RC2.txt. These previous files are historical.
+Source snapshot updated to final version label. No change to RC2 frame/audio
+processing, gain curve, geometry, resolution, inputs or Plus opt-in behavior.
+
+Final addition lives in launch scripts:
+- volume-control.sh snapshots /sys/class/anbernic_misc/openbor_volume before
+  starting SonicMania; validates 0..10, restores exact captured value on exit.
+- Launcher cleanup stops/waits for the child before restoring screen+volume.
+- Independent lifetime watcher now accepts optional volume snapshot and node,
+  and restores it when the game dies, even with no usable backlight snapshot.
+- Normal 0/3/10 levels, error exit7, launcher SIGTERM, forced child death,
+  and invalid snapshot rejection passed using production scripts/fake nodes.
+- System volume restoration has not yet been physically tested on RGDS+.
+
+On-console RC2 validation from supplied log(3).txt:
+UFO1: seven non-loading 10-second reports 59.93,60.07,59.97,60.01,59.98,
+60.04,60.01 FPS; sum of intervals over25ms=11, largest interval=27.09ms.
+UFO1 present means .605..624ms versus about9ms previously; near60 average
+is confirmed for this test only, not every special stage or worst-case scene.
+All recorded audio counters late/over-budget/clipped/invalid were zero.
+Brightness snapshot/restoration=70 and exit code0.

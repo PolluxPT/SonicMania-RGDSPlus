@@ -1,0 +1,37 @@
+{
+  "release": "1.0 RC2",
+  "scope": "presentation pacing experiment",
+  "arm64_build": "passed",
+  "clock_sanitizers": "ASan/UBSan passed; LSAN disabled (sandbox limitation)",
+  "clock_checks": [
+    "startup",
+    "100000 jittered deadlines without drift",
+    "whole-period miss",
+    "long stall resets without catchup"
+  ],
+  "exact_reference_frame120_matches": [
+    "UFO1",
+    "CPZ1",
+    "Menu"
+  ],
+  "native_pacing": {
+    "intervals": 180,
+    "seconds": 3.030265,
+    "fps": 59.401,
+    "backend": "SDL dummy / software"
+  },
+  "physical_rc1": {
+    "ufo_fps_main_range": [
+      49,
+      52
+    ],
+    "audio_telemetry_errors": 0,
+    "lower_brightness_restored": 70
+  },
+  "physical_rc2": null,
+  "limitations": [
+    "No RGDS+ available locally",
+    "VSync disabling benefit unproven on target",
+    "Present time includes queued rendering and driver work, not solely VSync waiting"
+  ]
+}

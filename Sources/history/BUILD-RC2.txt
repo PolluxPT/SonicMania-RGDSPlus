@@ -1,0 +1,26 @@
+Sonic Mania RGDS+ 1.0 RC2
+Read BUILD-RC1.txt and BUILD.txt for compiler, dependencies and retained changes.
+RC1 physical test: normal stages roughly 59–60 FPS, UFO1 sustained roughly
+49–52 FPS. No demonstrated resolution of the UFO slowdown in RC1.
+
+RC2 scope: presentation pacing experiment, not a proven target FPS fix.
+- Launcher defaults RGDS_VSYNC=0 (SONICMANIA_VSYNC can override), sets
+  SDL_VIDEO_DOUBLE_BUFFER=0 before SDL init; no Settings.ini overwrite.
+- SDL_RenderSetVSync applies requested interval explicitly; errors logged.
+- New pure deadline helper preserves phase under small scheduling jitter;
+  rebases if a full period is missed; no simulation catch-up bursts.
+- Existing event loop sleeps 1 ms when over 2 ms remain, polling near deadline.
+- VSync mode keeps present pacing; benchmark mode remains developer-only.
+- Frame telemetry adds upload_ms and render_ms subsets of cpu_ms. Present_ms
+  still includes deferred renderer submission/GPU/driver/compositor waiting:
+  it must not be interpreted as a direct measure of idle VSync wait alone.
+- CPU/GPU/clock governor, audio, resolution and gameplay assets unchanged.
+- tools/TesteComVSync.sh offers base-mode comparison; standard PLUS launcher
+  retains explicit Plus opt-in. No calibration or saves are shipped.
+
+Validation: ARM64 Release build; ASan/UBSan pure clock test (LeakSanitizer
+unsupported in sandbox, detect_leaks=0); three exact frame-120 image matches
+against original rendering baseline; native capped 180-interval run at 59.401
+FPS using SDL dummy/software. No handheld FPS or physical Wayland claim.
+SDL documentation: https://wiki.libsdl.org/SDL2/SDL_RenderSetVSync
+https://wiki.libsdl.org/SDL2/SDL_HINT_VIDEO_DOUBLE_BUFFER

@@ -1,0 +1,56 @@
+Sonic Mania RGDS+ 1.0 RC1
+
+See BUILD.txt for the original cross toolchain and library versions. New source
+snapshot: sonicmania-rgds-source.tar.xz. Source licenses are unchanged; the
+original authors/decompilation contributors retain all rights. New RGDS helper
+code is marked as platform integration. No game assets or user saves shipped.
+
+Release options remain:
+-DPLATFORM=RGDS -DRETRO_REVISION=2 -DRETRO_MOD_LOADER=OFF -DGAME_STATIC=ON
+-DGAME_INCLUDE_EDITOR=OFF -DRETRO_DISABLE_PLUS=ON -DCMAKE_BUILD_TYPE=Release
+Use rgds-toolchain.cmake with PORT_SDK and SDL_HEADERS as in BUILD.txt.
+No new dynamic runtime dependencies or fast-math flags were introduced.
+
+Optimization:
+- Draw3DScene now calls rgdsSortFaces: stable descending merge/insertion hybrid,
+  reusable scratch vector, preserving ties exactly. Removes quadratic sorting
+  cost on larger meshes. No vertices/models/quality settings removed.
+- DrawLayerRotozoom hoists immutable layer/scanline fields, uses disjoint read
+  buffers and defined uint32 wrap in rgdsRotoRow; pixel output tested identical.
+- rgds-render-utils.hpp contains independently tested helpers.
+- No extra renderer threads, CPU governor change, overclock, frame skipping,
+  lower internal resolution, or firmware replacement.
+
+Hardware/audio:
+- rgds-hardware.cpp dims only /sys/class/backlight/backlight/brightness, the
+  physically established lower node. Does not write upper backlight1.
+- First dim waits until the main window has presented for about 300 ms.
+- Parent launcher snapshots brightness. Engine atexit, shell EXIT and separate
+  child-lifetime guardian restore it. setsid is used for the guardian when
+  available; fallback watcher retains normal process-lifetime behavior.
+- SIGTERM/INT/HUP handler only sets sig_atomic_t; the event loop exits normally.
+- Audio retains 44100 Hz, float stereo, 2048 requested sample frames, and stock
+  gain 0.35*(level/10)^2. No resampling or per-frame normalization added.
+- Audio postprocessing preserves finite in-headroom PCM exactly. Overrange is
+  saturated, nonfinite output zeroed; counts/timing reported outside callback.
+- Callback does no file I/O, allocation or log writes. Atomic telemetry only.
+
+Validation and limits:
+- See VALIDATION-1.0-RC1.json for exact local checks and measured baseline.
+- Nine image snapshots matched the old renderer (UFO1, CPZ1 and main menu).
+- Host gprof identified 3D face processing and floor rasterization as hot work.
+- The 1024-face isolated sort benchmark was about 19x faster on the host;
+  this is NOT a handheld FPS claim. Host whole-frame timing is dominated by
+  its software SDL display path and cannot establish RGDS+ frame rate.
+- New-game creation and re-open exercised the 64 KiB SaveData.bin path.
+- Shell guardian and exact brightness restoration exercised with fake nodes.
+- Unit tests use randomized/tied/extreme sort data, randomized wrapped texture
+  rows, floating audio/volume edge cases; ASan/UBSan used where appropriate.
+- ALSA, physical lower-backlight behavior, battery life and target special-stage
+  FPS still require the user's console test. RC designation is intentional.
+
+Developer-only benchmark: RGDS_BENCH_FRAMES=N bypasses the clock cap and exits
+normally after N presents. Use RGDS_VSYNC=0 and dummy SDL for host profiling.
+Normal launchers explicitly unset RGDS_BENCH_FRAMES. Do not use it to evaluate
+on-console gameplay. qa_render_compare.c seeds libc rand deterministically and
+captures test frames. Do not preload QA libraries during normal use.
