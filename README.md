@@ -2,6 +2,8 @@
 
 <img src="APPS/Imgs/SonicMania_PLUS.png" alt="Sonic Mania Plus icon by hatemtiger" width="220">
 
+[![Download](https://img.shields.io/badge/Download-v1.0-blue?style=for-the-badge)](https://github.com/PolluxPT/SonicMania-RGDSPlus/releases/latest)
+
 Unofficial standalone Sonic Mania port for **Anbernic RG DS Plus, Stock Linux OS**.
 One **SonicMania_PLUS** launcher, native ARM64 execution, and no RetroArch core or PortMaster required.
 
